@@ -27,6 +27,7 @@ config({});
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      sortSchema: true,
     }),
   ],
   providers: [UserResolver, EmailResolver, UserService],
