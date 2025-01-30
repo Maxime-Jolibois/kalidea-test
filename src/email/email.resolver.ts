@@ -1,5 +1,3 @@
-import { NotImplementedException } from '@nestjs/common';
-import { Mutation } from '@nestjs/graphql';
 import {
   Args,
   ID,
@@ -10,30 +8,31 @@ import {
 } from '@nestjs/graphql';
 import { EmailFiltersArgs, UserEmail } from './email.types';
 import { User } from '../user/user.types';
+import { EmailService } from './email.service';
+import { IEmail } from './email.interfaces';
+import { UserService } from '../user/user.service';
 
 @Resolver(() => UserEmail)
 export class EmailResolver {
+  constructor(
+    private readonly emailService: EmailService,
+    private readonly userService: UserService,
+  ) {}
+
   @Query(() => UserEmail, { name: 'email' })
-  getEmail(@Args({ name: 'emailId', type: () => ID }) emailId: string) {
-    // TODO IMPLEMENTATION
-    // Récupérer une adresse email par rapport à son identifiant
-    throw new NotImplementedException();
+  getEmail(
+    @Args({ name: 'emailId', type: () => ID }) emailId: string,
+  ): Promise<IEmail> {
+    return this.emailService.get(emailId);
   }
 
   @Query(() => [UserEmail], { name: 'emailsList' })
   async getEmails(@Args() filters: EmailFiltersArgs): Promise<UserEmail[]> {
-    // TODO IMPLEMENTATION
-    // Récupérer une liste d'e-mails correspondants à des filtres
-
-    // Je pense qu'on pourrait essayer de refactoriser pour réutiliser
-    // la même chose que dans UserResolver pour récupérer les emails
-    throw new NotImplementedException();
+    return this.emailService.getFromFilters(filters);
   }
 
   @ResolveField(() => User, { name: 'user' })
   async getUser(@Parent() parent: UserEmail): Promise<User> {
-    // TODO IMPLEMENTATION
-    // Récupérer l'utilisateur à qui appartient l'email
-    throw new NotImplementedException();
+    return this.userService.getFromEmail(parent);
   }
 }
