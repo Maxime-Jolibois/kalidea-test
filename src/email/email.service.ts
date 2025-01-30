@@ -1,3 +1,4 @@
+import { UserId } from './../user/user.interfaces';
 import { Injectable } from '@nestjs/common';
 import { EmailEntity } from './email.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +17,10 @@ export class EmailService {
     return this.emailRepository.findOneBy({ id: Equal(id) });
   }
 
-  public getFromFilters(filters: EmailFiltersArgs): Promise<UserEmail[]> {
+  public getFromFilters(
+    filters: EmailFiltersArgs,
+    userId?: UserId,
+  ): Promise<UserEmail[]> {
     const where: FindOptionsWhere<EmailEntity>[] = [];
 
     if (filters.address) {
@@ -29,6 +33,10 @@ export class EmailService {
       if (filters.address.in?.length > 0) {
         where.push({ address: In(filters.address.in) });
       }
+    }
+
+    if (userId) {
+      where.forEach((element) => (element.userId = userId));
     }
 
     return this.emailRepository.find({
