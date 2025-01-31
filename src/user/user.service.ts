@@ -4,6 +4,7 @@ import { Equal, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { IAddUser, IUser, UserId } from './user.interfaces';
 import { UserEmail } from 'src/email/email.types';
+import { UserStatus } from '../enums/userStatus.enum';
 
 @Injectable()
 export class UserService {
@@ -16,10 +17,10 @@ export class UserService {
    * Ajoute un utilisateur
    * @param user Utilisateur à ajouter au système
    */
-  async add(user: IAddUser) {
+  async add(user: IAddUser, status?: UserStatus) {
     const addedUser = await this.userRepository.insert({
       ...user,
-      status: 'active',
+      status: status ?? UserStatus.ACTIF,
     });
     const userId = addedUser.identifiers[0].id;
 
@@ -42,7 +43,7 @@ export class UserService {
 
     await this.userRepository.update(
       { id: Equal(userId) },
-      { status: 'inactive' },
+      { status: UserStatus.INACTIF },
     );
 
     return userId;

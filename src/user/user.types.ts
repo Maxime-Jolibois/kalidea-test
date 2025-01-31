@@ -9,6 +9,7 @@ import {
 import { Maybe } from 'graphql/jsutils/Maybe';
 import { IUser, IAddUser } from './user.interfaces';
 import { IsNotInFutur } from '../validators/IsNotInFutur.validator';
+import { UserStatus } from '../enums/userStatus.enum';
 
 /**
  * Type de sortie GraphQL d'un utilisateur pour les récupérations
@@ -44,6 +45,10 @@ export class AddUser implements IAddUser {
     message: 'La date de naissance ne peut pas être définie dans le futur',
   })
   birthdate?: Date;
+
+  @IsOptional()
+  @Field(() => UserStatus, { nullable: true })
+  status?: UserStatus;
 }
 
 /**

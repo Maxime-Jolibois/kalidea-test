@@ -6,6 +6,7 @@ import { Equal, FindOptionsWhere, In, Repository } from 'typeorm';
 import { IEmail, IEmailId } from './email.interfaces';
 import { EmailFiltersArgs, UserEmail } from './email.types';
 import { UserEntity } from '../user/user.entity';
+import { UserStatus } from '../enums/userStatus.enum';
 
 @Injectable()
 export class EmailService {
@@ -53,10 +54,13 @@ export class EmailService {
     address: string,
   ): Promise<UserEmail> {
     // On vérifie si le user existe
-    //TODO: Vérifier son statut (inactif = on ne créé pas l'email)
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error(`Utilisateur non trouvé`);
+    }
+
+    if (user.status === UserStatus.INACTIF) {
+      throw new Error("Impossible d'ajouter un email à un utilisateur inactif");
     }
 
     const email = this.emailRepository.create({
