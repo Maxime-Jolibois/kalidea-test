@@ -6,13 +6,15 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '../src/user/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EmailEntity } from '../src/email/email.entity';
+import { UserStatus } from '../src/enums/userStatus.enum';
 
 const knownUserId = '0f9fcea9-f618-44e5-b182-0e3c83586f8b';
+const inactiveUserId = '34f5b57e-8447-412c-8197-1c688dfc9a26';
 
 const knownUser = {
   id: knownUserId,
   name: 'Moi Même',
-  status: 'active',
+  status: UserStatus.ACTIF,
   birthdate: new Date(1989, 3, 8).toISOString(),
   emails: [
     {
@@ -31,6 +33,14 @@ const knownUser = {
       address: 'test3@upcse-integration.coop',
     },
   ],
+};
+
+const inactiveUser = {
+  id: inactiveUserId,
+  name: 'Je suis pas là',
+  status: UserStatus.INACTIF,
+  birthdate: new Date(1989, 3, 8).toISOString(),
+  emails: [],
 };
 
 const [email1, email2, email3] = knownUser.emails;
@@ -57,7 +67,7 @@ describe('Tests e2e', () => {
     );
 
     const { emails, ...user } = knownUser;
-    await userRepo.insert(user);
+    await userRepo.insert([user, inactiveUser]);
     await emailRepo.insert(emails);
 
     await app.init();
@@ -302,8 +312,19 @@ describe('Tests e2e', () => {
         );
       });
 
-      it.skip(`Ne devrait pas ajouter un email à l'utilisateur s\'il est inactif`, () => {
-        expect(true).toBeTruthy();
+      it(`Ne devrait pas ajouter un email à l'utilisateur s\'il est inactif`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(userId: "${inactiveUserId}", address: "test@test.fr"){id address}}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            console.log(res);
+            expect(res.body.errors?.[0]?.message).toContain(
+              "Impossible d'ajouter un email à un utilisateur inactif",
+            );
+          });
       });
     });
   });

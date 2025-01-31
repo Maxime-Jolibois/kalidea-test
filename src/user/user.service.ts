@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { IAddUser, IUser, UserId } from './user.interfaces';
-import { UserEmail } from 'src/email/email.types';
+import { UserEmail } from '../email/email.types';
+import { UserStatus } from '../enums/userStatus.enum';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,21 @@ export class UserService {
   async add(user: IAddUser) {
     const addedUser = await this.userRepository.insert({
       ...user,
-      status: 'active',
+      status: UserStatus.ACTIF,
+    });
+    const userId = addedUser.identifiers[0].id;
+
+    return userId;
+  }
+
+  /**
+   * Ajoute un utilisateur
+   * @param user Utilisateur à ajouter au système
+   */
+  async addInactive(user: IAddUser) {
+    const addedUser = await this.userRepository.insert({
+      ...user,
+      status: UserStatus.INACTIF,
     });
     const userId = addedUser.identifiers[0].id;
 
@@ -42,7 +57,7 @@ export class UserService {
 
     await this.userRepository.update(
       { id: Equal(userId) },
-      { status: 'inactive' },
+      { status: UserStatus.INACTIF },
     );
 
     return userId;

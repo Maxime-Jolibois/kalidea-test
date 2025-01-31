@@ -31,6 +31,11 @@ export class UserResolver {
   }
 
   @Mutation(() => ID)
+  addInactiveUser(@Args() user: AddUser): Promise<UserId> {
+    return this._service.addInactive(user);
+  }
+
+  @Mutation(() => ID)
   deactivateUser(@Args() { userId }: UserIdArgs): Promise<UserId> {
     return this._service.deactivate(userId);
   }
