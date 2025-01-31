@@ -5,12 +5,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, FindOptionsWhere, In, Repository } from 'typeorm';
 import { IEmail, IEmailId } from './email.interfaces';
 import { EmailFiltersArgs, UserEmail } from './email.types';
+import { UserEntity } from '../user/user.entity';
 
 @Injectable()
 export class EmailService {
   constructor(
     @InjectRepository(EmailEntity)
     private readonly emailRepository: Repository<EmailEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   public get(id: IEmailId): Promise<IEmail> {
@@ -43,5 +46,23 @@ export class EmailService {
       where,
       order: { address: 'asc' },
     });
+  }
+
+  public async addEmailToUser(
+    userId: UserId,
+    address: string,
+  ): Promise<UserEmail> {
+    // On vérifie si le user existe
+    //TODO: Vérifier son statut (inactif = on ne créé pas l'email)
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error(`Utilisateur non trouvé`);
+    }
+
+    const email = this.emailRepository.create({
+      address: address,
+      userId: userId,
+    });
+    return this.emailRepository.save(email);
   }
 }

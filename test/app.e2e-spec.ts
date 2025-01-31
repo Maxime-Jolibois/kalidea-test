@@ -263,5 +263,27 @@ describe('Tests e2e', () => {
           });
       });
     });
+
+    describe('[Mutation] addEmail', () => {
+      it(`Devrait ajouter un email à l'utilisateur`, () => {
+        const address = 'test@test.fr';
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(userId: "${knownUserId}", address: "${address}"){id address}}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.data.addEmail.address).toBe(address);
+          });
+      });
+
+      it.skip(`Devrait retourner une erreur lorsque le mail n'est pas au bon format`, () => {
+        expect(true).toBeTruthy();
+      });
+      it.skip(`Devrait ajouter un email à l'utilisateur`, () => {
+        expect(true).toBeTruthy();
+      });
+    });
   });
 });

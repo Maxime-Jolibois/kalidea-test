@@ -57,6 +57,11 @@ export class UserService {
     return this.userRepository.findOneBy({ id: Equal(id) });
   }
 
+  /**
+   * Récupère un utilisateur par rapport à un email
+   * @param userEmail Identifiant de l'utilisateur
+   * @returns L'utilisateur correspondant à l'email ou undefined
+   */
   public getFromEmail(userEmail: UserEmail): Promise<IUser> {
     return this.get(userEmail.userId);
   }
