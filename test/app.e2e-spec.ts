@@ -278,10 +278,31 @@ describe('Tests e2e', () => {
           });
       });
 
-      it.skip(`Devrait retourner une erreur lorsque le mail n'est pas au bon format`, () => {
-        expect(true).toBeTruthy();
+      it(`Devrait retourner une erreur lorsque le mail n'est pas au bon format`, () => {
+        const emails = [
+          'notGoodFormat@test',
+          'notGoodFormattest.fr',
+          '@test.fr',
+        ];
+
+        return Promise.all(
+          emails.map((email) =>
+            request(app.getHttpServer())
+              .post('/graphql')
+              .send({
+                query: `mutation {addEmail(userId: "${knownUserId}", address: "${email}"){id address}}`,
+              })
+              .expect(200)
+              .expect((res) => {
+                expect(
+                  res.body.errors?.[0]?.extensions?.originalError?.message,
+                ).toContain("Format d'email incorrecte");
+              }),
+          ),
+        );
       });
-      it.skip(`Devrait ajouter un email à l'utilisateur`, () => {
+
+      it.skip(`Ne devrait pas ajouter un email à l'utilisateur s\'il est inactif`, () => {
         expect(true).toBeTruthy();
       });
     });

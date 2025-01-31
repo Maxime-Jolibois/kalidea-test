@@ -7,7 +7,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { EmailFiltersArgs, UserEmail } from './email.types';
+import { EmailArgs, EmailFiltersArgs, UserEmail } from './email.types';
 import { User } from '../user/user.types';
 import { EmailService } from './email.service';
 import { IEmail } from './email.interfaces';
@@ -36,7 +36,7 @@ export class EmailResolver {
   @Mutation(() => UserEmail)
   async addEmail(
     @Args('userId') userId: UserId,
-    @Args('address') address: string,
+    @Args() { address }: EmailArgs,
   ): Promise<UserEmail> {
     return this.emailService.addEmailToUser(userId, address);
   }
