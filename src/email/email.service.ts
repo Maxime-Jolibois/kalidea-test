@@ -2,7 +2,7 @@ import { UserId } from './../user/user.interfaces';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EmailEntity } from './email.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, FindOptionsWhere, In, Repository } from 'typeorm';
+import { DeleteResult, Equal, FindOptionsWhere, In, Repository } from 'typeorm';
 import { IEmail, IEmailId } from './email.interfaces';
 import { EmailFiltersArgs, UserEmail } from './email.types';
 import { UserEntity } from '../user/user.entity';
@@ -68,5 +68,9 @@ export class EmailService {
       userId: userId,
     });
     return this.emailRepository.save(email);
+  }
+
+  public async delete(emailId: IEmailId): Promise<DeleteResult> {
+    return this.emailRepository.delete(emailId);
   }
 }

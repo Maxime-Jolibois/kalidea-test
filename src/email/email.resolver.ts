@@ -10,9 +10,10 @@ import {
 import { EmailArgs, EmailFiltersArgs, UserEmail } from './email.types';
 import { User } from '../user/user.types';
 import { EmailService } from './email.service';
-import { IEmail } from './email.interfaces';
+import { IEmail, IEmailId } from './email.interfaces';
 import { UserService } from '../user/user.service';
 import { UserId } from 'src/user/user.interfaces';
+import { DeleteResult } from 'typeorm';
 
 @Resolver(() => UserEmail)
 export class EmailResolver {
@@ -39,6 +40,11 @@ export class EmailResolver {
     @Args() { address }: EmailArgs,
   ): Promise<UserEmail> {
     return this.emailService.addEmailToUser(userId, address);
+  }
+
+  @Mutation(() => ID)
+  async deleteEmail(@Args('id') id: IEmailId): Promise<DeleteResult> {
+    return this.emailService.delete(id);
   }
 
   @ResolveField(() => User, { name: 'user' })
